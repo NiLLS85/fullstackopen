@@ -1,0 +1,8 @@
+# Full Stack Open
+
+Ejercicios del curso [Full Stack Open](https://fullstackopen.com/es/) de la Universidad de Helsinki: React, Node.js, Express, MongoDB, pruebas y despliegue.
+
+| Parte | Contenido | Carpeta |
+|---|---|---|
+| 0 | Fundamentos de las aplicaciones web (diagramas de secuencia) | [part0](part0) |
+| 1 | Introducción a React: componentes, props, estado y eventos | [part1](part1) |
