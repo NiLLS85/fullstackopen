@@ -1,0 +1,36 @@
+### Crear un usuario
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+  "username": "mluukkai",
+  "name": "Matti Luukkainen",
+  "password": "salainen"
+}
+
+### Iniciar sesión (copia el token de la respuesta)
+POST http://localhost:3003/api/login
+Content-Type: application/json
+
+{
+  "username": "mluukkai",
+  "password": "salainen"
+}
+
+### Añadir un blog con el token
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: Bearer PEGA_AQUI_EL_TOKEN
+
+{
+  "title": "React patterns",
+  "author": "Michael Chan",
+  "url": "https://reactpatterns.com/",
+  "likes": 7
+}
+
+### Listar blogs
+GET http://localhost:3003/api/blogs
+
+### Listar usuarios
+GET http://localhost:3003/api/users
