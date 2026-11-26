@@ -9,10 +9,10 @@ test('<BlogForm /> calls createBlog with the right details', async () => {
 
   render(<BlogForm createBlog={createBlog} />)
 
-  await user.type(screen.getByLabelText('title:'), 'Testing the form')
-  await user.type(screen.getByLabelText('author:'), 'Ada Lovelace')
-  await user.type(screen.getByLabelText('url:'), 'https://example.com/form')
-  await user.click(screen.getByText('create'))
+  await user.type(screen.getByLabelText('title'), 'Testing the form')
+  await user.type(screen.getByLabelText('author'), 'Ada Lovelace')
+  await user.type(screen.getByLabelText('url'), 'https://example.com/form')
+  await user.click(screen.getByRole('button', { name: 'create' }))
 
   expect(createBlog.mock.calls).toHaveLength(1)
   expect(createBlog.mock.calls[0][0]).toEqual({

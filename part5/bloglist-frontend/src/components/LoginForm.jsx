@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Box, Button, Paper, TextField, Typography } from '@mui/material'
 
 const LoginForm = ({ onLogin }) => {
   const [username, setUsername] = useState('')
@@ -7,40 +8,39 @@ const LoginForm = ({ onLogin }) => {
   const handleSubmit = async event => {
     event.preventDefault()
     const ok = await onLogin({ username, password })
-    if (ok) {
-      setUsername('')
+    if (!ok) {
       setPassword('')
     }
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>
-          username
-          <input
-            type="text"
-            value={username}
-            name="Username"
-            autoComplete="username"
-            onChange={({ target }) => setUsername(target.value)}
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          password
-          <input
-            type="password"
-            value={password}
-            name="Password"
-            autoComplete="current-password"
-            onChange={({ target }) => setPassword(target.value)}
-          />
-        </label>
-      </div>
-      <button type="submit">login</button>
-    </form>
+    <Paper sx={{ p: 3, maxWidth: 400 }}>
+      <Typography variant="h5" component="h2" gutterBottom>
+        log in to application
+      </Typography>
+      <Box component="form" onSubmit={handleSubmit}>
+        <TextField
+          label="username"
+          value={username}
+          autoComplete="username"
+          onChange={({ target }) => setUsername(target.value)}
+          fullWidth
+          margin="normal"
+        />
+        <TextField
+          label="password"
+          type="password"
+          value={password}
+          autoComplete="current-password"
+          onChange={({ target }) => setPassword(target.value)}
+          fullWidth
+          margin="normal"
+        />
+        <Button type="submit" variant="contained" sx={{ mt: 2 }}>
+          login
+        </Button>
+      </Box>
+    </Paper>
   )
 }
 

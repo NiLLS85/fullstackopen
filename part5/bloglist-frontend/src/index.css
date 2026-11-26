@@ -1,27 +1,4 @@
 body {
-  font-family: sans-serif;
-  margin: 1rem;
-}
-
-.blog {
-  padding: 0.5rem 0.4rem;
-  border: 1px solid #999;
-  margin-bottom: 0.4rem;
-}
-
-.notification {
-  font-size: 1.1rem;
-  background: #f2f2f2;
-  border: 2px solid;
-  border-radius: 6px;
-  padding: 0.6rem;
-  margin-bottom: 0.8rem;
-}
-
-.notification.success {
-  color: #1d7a1d;
-}
-
-.notification.error {
-  color: #b3261e;
+  margin: 0;
+  background: #f6f7f9;
 }

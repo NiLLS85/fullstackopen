@@ -1,36 +1,37 @@
 import { useEffect, useRef, useState } from 'react'
+import { Container } from '@mui/material'
+import { Navigate, Route, Routes, useMatch, useNavigate } from 'react-router-dom'
 
-import Blog from './components/Blog'
 import BlogForm from './components/BlogForm'
+import BlogList from './components/BlogList'
+import BlogView from './components/BlogView'
 import LoginForm from './components/LoginForm'
+import NavBar from './components/NavBar'
+import NotFound from './components/NotFound'
 import Notification from './components/Notification'
-import Togglable from './components/Togglable'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
 const STORAGE_KEY = 'loggedBlogappUser'
 
-const byLikes = (a, b) => b.likes - a.likes
-
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState(() => {
+    const saved = window.localStorage.getItem(STORAGE_KEY)
+    return saved ? JSON.parse(saved) : null
+  })
   const [notification, setNotification] = useState(null)
-  const blogFormRef = useRef()
   const timeoutRef = useRef()
+  const navigate = useNavigate()
+  const match = useMatch('/blogs/:id')
 
   useEffect(() => {
     blogService.getAll().then(initialBlogs => setBlogs(initialBlogs))
   }, [])
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(STORAGE_KEY)
-    if (saved) {
-      const savedUser = JSON.parse(saved)
-      setUser(savedUser)
-      blogService.setToken(savedUser.token)
-    }
-  }, [])
+    blogService.setToken(user?.token)
+  }, [user])
 
   const notify = (text, type = 'success') => {
     clearTimeout(timeoutRef.current)
@@ -45,6 +46,7 @@ const App = () => {
       blogService.setToken(loggedUser.token)
       setUser(loggedUser)
       notify(`welcome ${loggedUser.name}`)
+      navigate('/')
       return true
     } catch {
       notify('wrong username or password', 'error')
@@ -56,15 +58,15 @@ const App = () => {
     window.localStorage.removeItem(STORAGE_KEY)
     blogService.setToken(null)
     setUser(null)
+    navigate('/')
   }
 
   const createBlog = async newBlog => {
     try {
       const created = await blogService.create(newBlog)
-      // el backend devuelve el id del usuario; se completa con sus datos
       setBlogs(blogs.concat({ ...created, user: { username: user.username, name: user.name } }))
-      blogFormRef.current.toggleVisibility()
       notify(`a new blog ${created.title} by ${created.author} added`)
+      navigate('/')
     } catch (error) {
       notify(error.response?.data?.error ?? 'could not add the blog', 'error')
     }
@@ -80,6 +82,7 @@ const App = () => {
         user: blog.user?.id,
       })
       setBlogs(blogs.map(b => (b.id === blog.id ? updated : b)))
+      notify(`you liked ${blog.title}`)
     } catch {
       notify(`could not like ${blog.title}`, 'error')
     }
@@ -93,42 +96,35 @@ const App = () => {
       await blogService.remove(blog.id)
       setBlogs(blogs.filter(b => b.id !== blog.id))
       notify(`removed ${blog.title}`)
+      navigate('/')
     } catch (error) {
       notify(error.response?.data?.error ?? `could not remove ${blog.title}`, 'error')
     }
   }
 
-  if (user === null) {
-    return (
-      <div>
-        <h2>log in to application</h2>
-        <Notification notification={notification} />
-        <LoginForm onLogin={handleLogin} />
-      </div>
-    )
-  }
+  const blog = match ? blogs.find(b => b.id === match.params.id) : null
 
   return (
     <div>
-      <h2>blogs</h2>
-      <Notification notification={notification} />
-      <p>
-        {user.name} logged in <button onClick={handleLogout}>logout</button>
-      </p>
-
-      <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-        <BlogForm createBlog={createBlog} />
-      </Togglable>
-
-      {[...blogs].sort(byLikes).map(blog => (
-        <Blog
-          key={blog.id}
-          blog={blog}
-          onLike={likeBlog}
-          onRemove={removeBlog}
-          canRemove={blog.user?.username === user.username}
-        />
-      ))}
+      <NavBar user={user} onLogout={handleLogout} />
+      <Container sx={{ py: 3 }}>
+        <Notification notification={notification} />
+        <Routes>
+          <Route path="/" element={<BlogList blogs={blogs} />} />
+          <Route
+            path="/blogs/:id"
+            element={
+              <BlogView blog={blog} user={user} onLike={likeBlog} onRemove={removeBlog} />
+            }
+          />
+          <Route
+            path="/create"
+            element={user ? <BlogForm createBlog={createBlog} /> : <Navigate replace to="/login" />}
+          />
+          <Route path="/login" element={<LoginForm onLogin={handleLogin} />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Container>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
 
-const { loginWith, createBlog, blogByTitle } = require('./helper')
+const { loginWith, createBlog, openBlog } = require('./helper')
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
@@ -15,26 +15,40 @@ describe('Blog app', () => {
     await page.goto('/')
   })
 
-  test('Login form is shown', async ({ page }) => {
+  test('front page shows the blog list and a login link', async ({ page }) => {
+    await expect(page.getByRole('heading', { name: 'blogs' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'login' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'new blog' })).toHaveCount(0)
+  })
+
+  test('login form is shown at /login', async ({ page }) => {
+    await page.getByRole('link', { name: 'login' }).click()
+    await expect(page).toHaveURL(/\/login$/)
     await expect(page.getByText('log in to application')).toBeVisible()
     await expect(page.getByLabel('username')).toBeVisible()
     await expect(page.getByLabel('password')).toBeVisible()
-    await expect(page.getByRole('button', { name: 'login' })).toBeVisible()
+  })
+
+  test('unknown routes show page not found', async ({ page }) => {
+    await page.goto('/does/not/exist')
+    await expect(page.getByText('page not found')).toBeVisible()
   })
 
   describe('Login', () => {
     test('succeeds with correct credentials', async ({ page }) => {
       await loginWith(page, 'mluukkai', 'salainen')
       await expect(page.getByText('Matti Luukkainen logged in')).toBeVisible()
+      await expect(page).toHaveURL(/\/$/)
     })
 
     test('fails with wrong credentials', async ({ page }) => {
       await loginWith(page, 'mluukkai', 'wrong')
 
-      const error = page.locator('.notification.error')
-      await expect(error).toContainText('wrong username or password')
-      await expect(error).toHaveCSS('color', 'rgb(179, 38, 30)')
-      await expect(page.getByText('Matti Luukkainen logged in')).not.toBeVisible()
+      await expect(page.locator('.notification.error')).toContainText(
+        'wrong username or password'
+      )
+      await expect(page.getByText('Matti Luukkainen logged in')).toHaveCount(0)
+      await expect(page).toHaveURL(/\/login$/)
     })
   })
 
@@ -56,29 +70,30 @@ describe('Blog app', () => {
       await expect(page.locator('.notification.success')).toContainText(
         `a new blog ${blog.title} by ${blog.author} added`
       )
-      await expect(blogByTitle(page, blog.title)).toBeVisible()
+      await expect(page.locator('.blog').filter({ hasText: blog.title })).toBeVisible()
     })
 
     test('a blog can be liked', async ({ page }) => {
       await createBlog(page, blog)
-      const item = blogByTitle(page, blog.title)
+      await openBlog(page, blog.title)
 
-      await item.getByRole('button', { name: 'view' }).click()
-      await expect(item.getByText('likes 0')).toBeVisible()
-
-      await item.getByRole('button', { name: 'like' }).click()
-      await expect(item.getByText('likes 1')).toBeVisible()
+      await expect(page.getByText('0 likes')).toBeVisible()
+      await page.getByRole('button', { name: 'like' }).click()
+      await expect(page.getByText('1 likes')).toBeVisible()
+      await expect(page.getByText('added by Matti Luukkainen')).toBeVisible()
     })
 
     test('the creator can delete the blog', async ({ page }) => {
       await createBlog(page, blog)
-      const item = blogByTitle(page, blog.title)
+      await openBlog(page, blog.title)
 
-      await item.getByRole('button', { name: 'view' }).click()
       page.once('dialog', dialog => dialog.accept())
-      await item.getByRole('button', { name: 'remove' }).click()
+      await page.getByRole('button', { name: 'remove' }).click()
 
-      await expect(blogByTitle(page, blog.title)).toHaveCount(0)
+      await expect(page.locator('.notification.success')).toContainText(
+        `removed ${blog.title}`
+      )
+      await expect(page.getByRole('link', { name: blog.title })).toHaveCount(0)
     })
 
     test('only the creator sees the remove button', async ({ page }) => {
@@ -88,10 +103,9 @@ describe('Blog app', () => {
       await loginWith(page, 'ada', 'analytical')
       await expect(page.getByText('Ada Lovelace logged in')).toBeVisible()
 
-      const item = blogByTitle(page, blog.title)
-      await item.getByRole('button', { name: 'view' }).click()
-      await expect(item.getByText('likes 0')).toBeVisible()
-      await expect(item.getByRole('button', { name: 'remove' })).toHaveCount(0)
+      await openBlog(page, blog.title)
+      await expect(page.getByRole('button', { name: 'like' })).toBeVisible()
+      await expect(page.getByRole('button', { name: 'remove' })).toHaveCount(0)
     })
 
     test('blogs are ordered by likes, most liked first', async ({ page }) => {
@@ -105,13 +119,10 @@ describe('Blog app', () => {
       }
 
       const likeTimes = async (title, times) => {
-        const item = blogByTitle(page, title)
-        if (await item.getByRole('button', { name: 'view' }).isVisible()) {
-          await item.getByRole('button', { name: 'view' }).click()
-        }
+        await openBlog(page, title)
         for (let i = 1; i <= times; i++) {
-          await item.getByRole('button', { name: 'like' }).click()
-          await expect(item.getByText(`likes ${i}`)).toBeVisible()
+          await page.getByRole('button', { name: 'like' }).click()
+          await expect(page.getByText(`${i} likes`)).toBeVisible()
         }
       }
 
@@ -119,7 +130,8 @@ describe('Blog app', () => {
       await likeTimes('Third blog', 2)
       await likeTimes('First blog', 1)
 
-      await expect(page.locator('.blog-summary')).toHaveText([
+      await page.getByRole('link', { name: 'blogs', exact: true }).click()
+      await expect(page.locator('.blog')).toHaveText([
         /Second blog/,
         /Third blog/,
         /First blog/,

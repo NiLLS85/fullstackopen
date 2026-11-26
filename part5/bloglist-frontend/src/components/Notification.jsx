@@ -1,12 +1,18 @@
+import { Alert } from '@mui/material'
+
 const Notification = ({ notification }) => {
   if (!notification) {
     return null
   }
 
   return (
-    <div className={`notification ${notification.type}`} role="status">
+    <Alert
+      severity={notification.type === 'error' ? 'error' : 'success'}
+      className={`notification ${notification.type}`}
+      sx={{ mb: 2 }}
+    >
       {notification.text}
-    </div>
+    </Alert>
   )
 }
 

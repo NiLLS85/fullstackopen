@@ -1,19 +1,23 @@
 const loginWith = async (page, username, password) => {
+  await page.getByRole('link', { name: 'login' }).click()
   await page.getByLabel('username').fill(username)
   await page.getByLabel('password').fill(password)
   await page.getByRole('button', { name: 'login' }).click()
 }
 
 const createBlog = async (page, { title, author, url }) => {
-  await page.getByRole('button', { name: 'create new blog' }).click()
-  await page.getByLabel('title:').fill(title)
-  await page.getByLabel('author:').fill(author)
-  await page.getByLabel('url:').fill(url)
+  await page.getByRole('link', { name: 'new blog' }).click()
+  await page.getByLabel('title').fill(title)
+  await page.getByLabel('author').fill(author)
+  await page.getByLabel('url').fill(url)
   await page.getByRole('button', { name: 'create' }).click()
-  await page.locator('.blog-summary').filter({ hasText: title }).waitFor()
+  await page.getByRole('link', { name: title }).waitFor()
 }
 
-const blogByTitle = (page, title) =>
-  page.locator('.blog').filter({ hasText: title })
+const openBlog = async (page, title) => {
+  await page.getByRole('link', { name: 'blogs', exact: true }).click()
+  await page.getByRole('link', { name: title }).click()
+  await page.getByRole('heading', { name: title }).waitFor()
+}
 
-module.exports = { loginWith, createBlog, blogByTitle }
+module.exports = { loginWith, createBlog, openBlog }

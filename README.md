@@ -9,4 +9,4 @@ Ejercicios del curso [Full Stack Open](https://fullstackopen.com/es/) de la Univ
 | 2 | Colecciones, formularios y comunicación con el servidor | [part2](part2) |
 | 3 | Servidor con Node.js y Express, MongoDB, validación y ESLint | [part3](part3) |
 | 4 | Pruebas del backend, usuarios y autenticación con tokens | [part4](part4) |
-| 5 | Interfaz de la lista de blogs con login, pruebas de componentes y pruebas E2E con Playwright | [part5](part5) |
+| 5 | Interfaz de la lista de blogs con login, rutas (React Router), Material UI, pruebas de componentes y pruebas E2E con Playwright | [part5](part5) |
