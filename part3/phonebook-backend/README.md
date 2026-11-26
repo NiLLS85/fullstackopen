@@ -2,6 +2,8 @@
 
 Backend de la agenda telefónica con Node.js, Express y MongoDB (Mongoose). Sirve también el frontend compilado desde `dist`.
 
+**Versión publicada:** <https://phonebook-fso-t3uq.onrender.com> (API en [/api/persons](https://phonebook-fso-t3uq.onrender.com/api/persons) e [/info](https://phonebook-fso-t3uq.onrender.com/info)). Está en el plan gratis de Render con la base de datos en MongoDB Atlas, así que la primera visita tras un rato sin uso puede tardar unos 50 segundos en despertar.
+
 ## API
 
 | Método | Ruta | Qué hace |
