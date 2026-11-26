@@ -1,0 +1,22 @@
+body {
+  font-family: sans-serif;
+  margin: 1rem;
+}
+
+.countries {
+  list-style: none;
+  padding: 0;
+}
+
+.countries li {
+  margin-bottom: 0.3rem;
+}
+
+.flag {
+  width: 160px;
+  border: 1px solid #ddd;
+}
+
+.weather-icon {
+  font-size: 1.5rem;
+}
