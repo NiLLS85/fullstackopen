@@ -10,3 +10,7 @@ Ejercicios del curso [Full Stack Open](https://fullstackopen.com/es/) de la Univ
 | 3 | Servidor con Node.js y Express, MongoDB, validación y ESLint | [part3](part3) |
 | 4 | Pruebas del backend, usuarios y autenticación con tokens | [part4](part4) |
 | 5 | Interfaz de la lista de blogs con login, rutas (React Router), Material UI, pruebas de componentes y pruebas E2E con Playwright | [part5](part5) |
+| 6 | Gestión del estado con Zustand, TanStack Query y Context | [fullstackopen-part6](https://github.com/NiLLS85/fullstackopen-part6) (repositorio aparte) |
+| 7 | React Router, hooks propios, límites de error, Prettier y frontend y backend en el mismo repositorio | [fullstackopen-part7](https://github.com/NiLLS85/fullstackopen-part7) (repositorio aparte) |
+
+Las partes 6 y 7 están en repositorios aparte porque el curso las evalúa con sus propias pruebas en GitHub Actions.
